@@ -1,148 +1,97 @@
-SELECT 
-  name 
-FROM 
-  movies 
-WHERE 
-  year = 2001;
+-- Ejercicio 1
+SELECT * FROM movies 
+WHERE year = 2001;
 
-SELECT 
-  COUNT() 
-FROM 
-  movies 
-WHERE 
-  year = 1982;
+-- Ejercicio 2
+SELECT COUNT(*) AS cantidad_de_peliculas 
+FROM movies 
+WHERE year = 1982;
 
-SELECT 
-  * 
-FROM 
-  actors 
-WHERE 
-  last_name = 'stack';
+-- Ejercicio3
+SELECT * 
+FROM actors 
+WHERE last_name LIKE '%stack%';
 
-SELECT 
-  first_name, 
-  COUNT() as cont 
-FROM 
-  actors
-GROUP BY 
-  first_name
-ORDER BY 
-  cont DESC
+-- Ejercicio 4
+SELECT COUNT(*), first_name
+FROM actors
+GROUP BY first_name
+ORDER BY COUNT(*) DESC
 LIMIT 10;
 
-SELECT 
-  last_name, 
-  COUNT() as cont 
-FROM 
-  actors
-GROUP BY 
-  last_name
-ORDER BY 
-  cont DESC
+-- Ejercicio 5
+SELECT COUNT(*), last_name
+FROM actors
+GROUP BY last_name
+ORDER BY COUNT(*) DESC
 LIMIT 10;
 
-SELECT 
-  first_name, 
-  last_name, 
-  COUNT() as cont 
-FROM 
-  actors
-GROUP BY 
-  first_name || last_name
-ORDER BY 
-  cont DESC
+-- Ejercicio 6
+SELECT COUNT(*) AS cantidad, first_name || ' ' || last_name AS full_name 
+FROM actors
+GROUP BY first_name, last_name
+ORDER BY cantidad DESC
 LIMIT 10;
 
-SELECT 
-  actors.first_name as nombres, 
-  actors.last_name as apellido, 
-  COUNT() as cont 
-FROM 
-  roles
-JOIN 
-  actors 
-ON 
-  roles.actor_id = actors.id
-GROUP BY 
-  nombres || apellido
-ORDER BY 
-  cont DESC 
+-- Ejercicio 7
+SELECT actors.first_name || ' ' || actors.last_name as actor, COUNT(*) as n_of_roles 
+FROM roles JOIN actors ON roles.actor_id = actors.id
+GROUP BY roles.actor_id
+ORDER BY n_of_roles DESC 
 LIMIT 100;
 
-SELECT 
-  genre as genero, 
-  COUNT(*) as cont  
-FROM 
-  movies_genres
-JOIN movies ON movies_genres.movie_id = movies.id
-GROUP BY 
-  genero 
-ORDER BY 
-  cont ASC;
+-- Ejercicio 8
+SELECT genre, COUNT(*) as n_of_movies  
+FROM movies_genres JOIN movies ON movies.id = movies_genres.movie_id
+GROUP BY genre
+ORDER BY n_of_movies DESC;
 
-SELECT 
-  actors.first_name, 
-  actors.last_name 
-FROM 
-  roles 
-JOIN actors ON roles.actor_id = actors.id 
-JOIN movies ON roles.movie_id = movies.id
-WHERE 
-  movies.name = 'Braveheart' 
-and 
-  movies.year = 1995
-ORDER BY 
-  actors.last_name ASC
+-- Ejercicio 9
+SELECT first_name, last_name 
+FROM movies 
+  JOIN roles ON roles.movie_id = movies.id 
+  JOIN actors ON roles.actor_id = actors.id
+WHERE movies.name = 'Braveheart' AND movies.year = 1995
+ORDER BY actors.last_name;
+
+-- Ejercicio 10
+SELECT (directors.first_name || ' ' || directors.last_name) AS director_name, movies.name movies.year 
+FROM movies
+JOIN movies_genres ON movies_genres.movie_id = movies.id
+JOIN movies_directors ON movies_directors.movie_id = movies.id
+JOIN directors ON movies_directors.movie_id = directors.id
+WHERE movies_genres.genre = 'Film-Noir' AND (movies.year % 4) = 0
+ORDER BY movies.name;
 
 
-SELECT 
-  directors.first_name as nombre, 
-  directors.last_name as apellido, 
-  movies.name as pelicula, 
-  movies.year as año 
-FROM 
-  directors_genres, movies_genres
-JOIN 
-  directors ON directors_genres.director_id = directors.id 
-JOIN 
-  movies ON movies_genres.movie_id = movies.id 
-WHERE 
-  directors_genres.genre = 'Film-Noir' and año % 4 = 0
-ORDER BY 
-  pelicula ASC
+-- Ejercicio 11 Subquerys
+SELECT movies.name, actors.first_name, actors.last_name
+FROM roles
+  JOIN actors ON roles.actor_id = actor.id
+  JOIN movies ON roles.movie_id = movies.id
+WHERE movie_id IN (
+  SELECT movie_id 
+  FROM roles
+  WHERE actor_id = (
+    SELECT id
+    FROM actors
+    WHERE first_name = 'Kevin' AND last_name = 'Bacon'
+  ) 
+)
+AND movie_id IN (
+  SELECT movie_id 
+  FROM movies_genre
+  WHERE genre = 'Drama' 
+)
+AND (actors.first_name != 'Kevin' AND actors.last_name != "Bacon");
 
 
-SELECT
-    d.first_name,
-    d.last_name,
-    m.name,
-    m.year
-FROM 
-    directors d
-JOIN
-    movies_directors md ON d.id = md.director_id
-JOIN
-    movies m ON md.movie_id = m.id
-JOIN
-    movies_genres mg ON m.id = mg.movie_id
-WHERE
-    mg.genre = 'Film-Noir' AND m.year % 4 = 0
-ORDER BY
-    m.name;
+-- Ejercicio 12 Indices
+CREATE INDEX "actors_idx_first_name" ON "actors" ("first_name");
+CREATE INDEX "actors_idx_last_name" ON "actors" ("last_name");
 
 
-
-SELECT 
-  m.name, 
-  a.first_name, 
-  a.last_name       
-FROM 
-  actors a
-JOIN roles r ON a.id = r.actor_id
-JOIN movies_genres mg ON r.movie_id = mg.movie_id
-JOIN movies m ON r.movie_id = m.id
-JOIN roles r2 ON m.id = r2.movie_id
-JOIN actors a2 ON r2.actor_id = a2.id
-WHERE a2.first_name = 'Kevin' AND a2.last_name = 'Bacon'
-  AND mg.genre = 'Drama'
-  AND NOT (a.first_name = 'Kevin' AND a.last_name = 'Bacon');
+-- Falta hacer
+-- Ejercicio 13
+-- Ejercicio 14
+-- Ejercicio 15
